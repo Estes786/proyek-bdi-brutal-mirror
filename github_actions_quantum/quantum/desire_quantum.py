@@ -18,7 +18,6 @@ try:
     from qiskit.algorithms.minimum_eigensolvers import QAOA
     from qiskit.algorithms.optimizers import COBYLA
     from qiskit_aer.primitives import Sampler
-    from qiskit.utils import algorithm_globals
     QUANTUM_AVAILABLE = True
 except ImportError:
     QUANTUM_AVAILABLE = False
@@ -33,7 +32,6 @@ class QuantumDesireOptimizer:
         self.use_quantum = QUANTUM_AVAILABLE and config.get('use_quantum', True)
         if self.use_quantum:
             self._setup_quantum_optimizer()
-        algorithm_globals.random_seed = 42
         self.logger.info(f"ðŸŒŒ QuantumDesireOptimizer V2 Initialized (Quantum: {self.use_quantum})")
 
     def _setup_logging(self) -> logging.Logger:
