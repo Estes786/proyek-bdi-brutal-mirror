@@ -50,7 +50,7 @@ jobs:
           echo "--- Quantum Intention Planning Finished ---"
 
       - name: ðŸ“ Upload All Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: quantum-bdi-results
           path: artifacts/
