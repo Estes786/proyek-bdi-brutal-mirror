@@ -15,6 +15,7 @@ import numpy as np
 from typing import Dict, List, Any
 import logging
 from pathlib import Path
+from qiskit.opflow import PauliSumOp
 
 try:
     from qiskit import QuantumCircuit, Aer
