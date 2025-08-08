@@ -1,0 +1,8 @@
+cat > requirements.txt <<EOF
+qiskit
+requests
+numpy
+pandas
+scikit-learn
+networkx
+EOF
