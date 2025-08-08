@@ -1,0 +1,10 @@
+{
+  "name": "bdi-agent-dashboard-brutal",
+  "version": "1.0.0",
+  "description": "Dashboard untuk Master BDI Agent",
+  "main": "api/status/index.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "https": "^1.0.0"
+  }
+}

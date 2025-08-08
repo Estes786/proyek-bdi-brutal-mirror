@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "name": "bdi-agent-dashboard-brutal",
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" }
+  ],
+  "env": {
+    "GITHUB_TOKEN": "@github_token",
+    "GITHUB_REPOSITORY": "@github_repository"
+  }
+}
