@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ðŸŒŒ BDI Agent Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 2rem; }
+        .container { max-width: 900px; margin: auto; }
+        .header { text-align: center; margin-bottom: 2rem; }
+        .header h1 { font-size: 2.5rem; color: #bb86fc; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .card { background-color: #1e1e1e; border-radius: 8px; padding: 1.5rem; border: 1px solid #333; }
+        .card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #03dac6; }
+        .metric { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .metric-label { color: #888; }
+        .metric-value { font-weight: bold; }
+        #status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+        .status-healthy { background-color: #03dac6; }
+        .status-degraded { background-color: #fbbd05; }
+        .status-unhealthy { background-color: #cf6679; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ðŸŒŒ BDI Agent Dashboard</h1>
+            <p>Real-time Monitoring of Brutal Architecture</p>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h2 class="card-title"><span id="status-indicator"></span>System Health</h2>
+                <div class="metric">
+                    <span class="metric-label">Overall Status</span>
+                    <span class="metric-value" id="overall-status">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Termux Agent</span>
+                    <span class="metric-value" id="termux-status">Unknown</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">GitHub Actions</span>
+                    <span class="metric-value" id="github-status">Unknown</span>
+                </div>
+            </div>
+            <div class="card">
+                <h2 class="card-title">ðŸ§  Agent Metrics</h2>
+                <div class="metric">
+                    <span class="metric-label">Total Cycles</span>
+                    <span class="metric-value" id="total-cycles">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Quantum Jobs</span>
+                    <span class="metric-value" id="quantum-jobs">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+
+                if (data.success) {
+                    const statusData = data.data;
+                    document.getElementById('overall-status').textContent = statusData.health_status;
+                    const indicator = document.getElementById('status-indicator');
+                    indicator.className = 'status-' + statusData.health_status;
+                    
+                    document.getElementById('termux-status').textContent = statusData.components.termux_agent.status;
+                    document.getElementById('github-status').textContent = statusData.components.github_actions.status;
+                    document.getElementById('total-cycles').textContent = statusData.metrics.total_cycles;
+                    document.getElementById('quantum-jobs').textContent = statusData.metrics.quantum_jobs;
+                }
+            } catch (error) {
+                console.error("Failed to fetch status:", error);
+                document.getElementById('overall-status').textContent = 'Error';
+            }
+        }
+
+        // Fetch status on page load and then every 15 seconds
+        fetchStatus();
+        setInterval(fetchStatus, 15000);
+    </script>
+</body>
+</html>
