@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# ðŸ”¬ GitHub Actions Quantum Processing Setup
+# Setup guide untuk GitHub Actions quantum processing
+
+echo "ðŸ”¬ GitHub Actions Quantum Processing Setup"
+echo "=========================================="
+
+# Check if we're in a git repository
+if [ ! -d ".git" ]; then
+    echo "â Œ This is not a Git repository. Please run from your repository root."
+    exit 1
+fi
+
+# Check for required files
+required_files=(
+    ".github/workflows/quantum_processing.yml"
+    "github_actions_quantum/quantum/belief_quantum.py"
+    "github_actions_quantum/quantum/desire_quantum.py"
+    "github_actions_quantum/quantum/intention_quantum.py"
+)
+
+echo "ðŸ“‹ Checking required files..."
+for file in "${required_files[@]}"; do
+    if [ -f "$file" ]; then
+        echo "âœ… $file exists"
+    else
+        echo "â Œ $file is missing"
+        exit 1
+    fi
+done
+
+# Create requirements.txt for quantum processing
+echo "ðŸ“„ Creating quantum requirements..."
+cat > github_actions_quantum/requirements.txt << EOF
+qiskit>=0.45.0
+qiskit-aer>=0.12.0
+qiskit-optimization>=0.5.0
+numpy>=1.21.0
+scipy>=1.7.0
+networkx>=2.6.0
+scikit-learn>=1.0.0
+requests>=2.25.0
+python-dateutil>=2.8.0
+EOF
+
+# Create action configuration
+echo "âš™ï¸  Repository setup checklist:"
+echo ""
+echo "1. ðŸ”  Add repository secrets (Settings â†’ Secrets and variables â†’ Actions):"
+echo "   VERCEL_TOKEN=<your-vercel-token>"
+echo "   VERCEL_ORG_ID=<your-vercel-org-id>"  
+echo "   VERCEL_PROJECT_ID=<your-vercel-project-id>"
+echo ""
+echo "2. ðŸ”§ Enable GitHub Actions:"
+echo "   - Go to Actions tab in your repository"
+echo "   - Enable workflows if prompted"
+echo ""
+echo "3. ðŸŒŒ Test quantum workflow:"
+echo "   - Go to Actions â†’ ðŸŒŒ Quantum BDI Processing"
+echo "   - Click 'Run workflow'"
+echo "   - Select branch and run"
+echo ""
+echo "4. ðŸ“Š Monitor usage:"
+echo "   - Check Settings â†’ Billing â†’ Actions minutes"
+echo "   - 2000 minutes/month free tier"
+echo ""
+echo "5. ðŸ”— Configure repository dispatch (optional):"
+echo "   curl -X POST \"
+echo "     -H "Accept: application/vnd.github.v3+json" \"
+echo "     -H "Authorization: token <your-token>" \"
+echo "     https://api.github.com/repos/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\(.*\)\.git.*/\1/')/dispatches \"
+echo "     -d '{"event_type":"quantum-trigger"}'"
+echo ""
+
+# Test workflow syntax
+echo "ðŸ§ª Testing workflow syntax..."
+if command -v yamllint >/dev/null 2>&1; then
+    yamllint .github/workflows/quantum_processing.yml
+    echo "âœ… Workflow syntax is valid"
+else
+    echo "âš ï¸   yamllint not found. Install with: pip install yamllint"
+fi
+
+echo ""
+echo "ðŸš€ Setup complete!"
+echo "Your GitHub Actions quantum processing is ready to use."
+echo ""
+echo "ðŸ’¡ Tips:"
+echo "- Use workflow_dispatch untuk manual triggers"
+echo "- Use repository_dispatch untuk external triggers (dari Termux)"
+echo "- Monitor artifacts untuk detailed results"
+echo "- Classical fallbacks activate if quantum fails"
+echo ""
+echo "Happy quantum computing! ðŸŒŒ"

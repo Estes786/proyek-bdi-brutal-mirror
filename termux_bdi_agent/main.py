@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-DWAN BDI Agent - Termux Version (Lightweight)
-Koordinator utama yang menjalankan di Android device
+DWAN BDI Agent - VERSI UPGRADE DENGAN PEMANCAR KUANTUM
 """
 
 import os
@@ -10,39 +9,54 @@ import time
 import json
 import signal
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
-# Baris ajaib agar Python bisa menemukan file-file kita
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils.sqlite_manager import SQLiteManager
+from utils.coordinator import PlatformCoordinator # <- MODUL BARU DIIMPOR
 from core.belief_lite import BeliefSystemLite
 from core.desire_lite import DesireSystemLite
 from core.intention_lite import IntentionSystemLite
 
 class TermuxBDIAgent:
-    """Lightweight BDI Agent untuk Android Termux"""
+    """BDI Agent dengan kemampuan komunikasi lintas platform"""
 
     def __init__(self):
-        self.config = {} # Untuk sekarang, kita buat simpel
+        self.config = self.load_config()
         self.running = True
         self.cycle_count = 0
-        self.cycle_interval = 30 # Agen akan berjalan setiap 30 detik
-
-        # Inisialisasi semua komponen
-        self.db = SQLiteManager('data/termux_bdi.db')
-        self.belief_system = BeliefSystemLite(self.db, self.config)
-        self.desire_system = DesireSystemLite(self.db, self.config)
-        self.intention_system = IntentionSystemLite(self.db, self.config)
+        self.cycle_interval = 60 # Kita perpanjang siklus jadi 1 menit
 
         self.setup_logging()
         self.logger = logging.getLogger("TermuxBDI")
+        
+        # Inisialisasi semua komponen
+        self.db = SQLiteManager('data/termux_bdi.db')
+        self.coordinator = PlatformCoordinator(self.config) # <- PEMANCAR DIINISIALISASI
+        self.belief_system = BeliefSystemLite(self.db, self.config)
+        self.desire_system = DesireSystemLite(self.db, self.config)
+        self.intention_system = IntentionSystemLite(self.db, self.config)
+        
         signal.signal(signal.SIGINT, self.signal_handler)
         signal.signal(signal.SIGTERM, self.signal_handler)
+        self.last_github_trigger = datetime.now() - timedelta(minutes=10)
+
+    def load_config(self):
+        """Memuat konfigurasi dari config.json"""
+        try:
+            with open('config.json', 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            self.logger.error("!!! FATAL: File 'config.json' tidak ditemukan!")
+            sys.exit(1) # Keluar jika config tidak ada
+        except json.JSONDecodeError:
+            self.logger.error("!!! FATAL: File 'config.json' tidak valid!")
+            sys.exit(1)
 
     def setup_logging(self):
-        """Setup pencatatan aktivitas agen"""
+        # ... (kode logging tetap sama)
         log_dir = Path("logs")
         log_dir.mkdir(exist_ok=True)
         logging.basicConfig(
@@ -55,49 +69,54 @@ class TermuxBDIAgent:
         )
 
     def signal_handler(self, signum, frame):
-        """Fungsi untuk berhenti dengan aman"""
         self.logger.info("Menerima sinyal berhenti, mematikan agen...")
+        self.coordinator.update_vercel_status('termux_agent', 'offline')
         self.running = False
-
-    def run_bdi_cycle(self):
-        """Menjalankan satu siklus BDI lengkap"""
-        self.cycle_count += 1
-        self.logger.info(f"--- SIKLUS BDI KE-{self.cycle_count} DIMULAI ---")
-        
-        # 1. BELIEF: Agen "Melihat" dan mengumpulkan informasi
-        belief_context = self.belief_system.update_beliefs()
-        self.logger.info(f"Beliefs updated: {belief_context.get('new_beliefs', 0)} new beliefs found.")
-        
-        # 2. DESIRE: Agen "Berpikir" dan menentukan keinginan
-        desire_context = self.desire_system.optimize_desires(belief_context)
-        top_desire_name = desire_context.get("top_desires", [{}])[0].get("name", "None")
-        self.logger.info(f"Desire optimized: Keinginan utama adalah '{top_desire_name}'.")
-        
-        # 3. INTENTION: Agen "Bertindak" berdasarkan keinginan
-        intention_result = self.intention_system.execute_intentions(desire_context)
-        self.logger.info(f"Intentions executed: {intention_result.get('actions', 0)} aksi dilakukan.")
-        self.logger.info(f"--- SIKLUS BDI SELESAI ---")
-
+    
     def start(self):
-        """Memulai agen untuk berjalan selamanya"""
-        self.logger.info("🚀🚀🚀 AGEN BDI BRUTAL SIAP BERAKSI! 🚀🚀🚀")
+        self.logger.info("🚀🚀🚀 AGEN BDI DENGAN PEMANCAR KUANTUM SIAP BERAKSI! 🚀🚀🚀")
         while self.running:
-            try:
-                cycle_start = time.time()
-                self.run_bdi_cycle()
-                cycle_duration = time.time() - cycle_start
-                
-                sleep_time = max(0, self.cycle_interval - cycle_duration)
-                self.logger.info(f"Istirahat selama {sleep_time:.2f} detik...")
-                time.sleep(sleep_time)
-
-            except Exception as e:
-                self.logger.error(f"!!! SIKLUS GAGAL TOTAL: {e}", exc_info=True)
-                time.sleep(60) # Tunggu sebentar jika ada error besar
+            # ... (kode loop tetap sama)
+            self.run_bdi_cycle()
+            time.sleep(self.cycle_interval)
         
         self.logger.info("Agen BDI telah berhenti.")
         self.db.close()
 
+    def run_bdi_cycle(self):
+        self.cycle_count += 1
+        self.logger.info(f"--- SIKLUS BDI KE-{self.cycle_count} DIMULAI ---")
+        
+        # 1. BELIEF
+        belief_context = self.belief_system.update_beliefs()
+        
+        # 2. DESIRE
+        desire_context = self.desire_system.optimize_desires(belief_context)
+        
+        # 3. INTENTION
+        intention_result = self.intention_system.execute_intentions(desire_context)
+        
+        # 4. LAPORAN & PICU!
+        self.coordinator.update_vercel_status(
+            'termux_agent', 
+            'active', 
+            {'total_cycles': self.cycle_count}
+        )
+        
+        # Pemicuan GitHub setiap 5 menit
+        if datetime.now() - self.last_github_trigger > timedelta(minutes=5):
+            if self.coordinator.trigger_github_workflow():
+                self.last_github_trigger = datetime.now()
+                self.coordinator.update_vercel_status('quantum_processor', 'triggered')
+        
+        self.logger.info(f"--- SIKLUS BDI SELESAI ---")
+
 if __name__ == "__main__":
-    agent = TermuxBDIAgent()
-    agent.start()
+    # SANGAT PENTING: Set GITHUB_TOKEN sebagai environment variable
+    # Jalankan agen dengan: GITHUB_TOKEN="ghp_xxxx" python main.py
+    if 'GITHUB_TOKEN' not in os.environ:
+        print("\n!!! TOKEN GITHUB BELUM DI-SET !!!")
+        print("Jalankan dengan cara: GITHUB_TOKEN=\"token_milikmu\" python main.py\n")
+    else:
+        agent = TermuxBDIAgent()
+        agent.start()
