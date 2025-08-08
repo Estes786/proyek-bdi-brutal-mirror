@@ -1,8 +1,8 @@
-cat > requirements.txt <<EOF
 qiskit
+qiskit-aer
+qiskit-optimization
 requests
 numpy
 pandas
 scikit-learn
 networkx
-EOF
