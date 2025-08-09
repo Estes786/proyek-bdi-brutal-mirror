@@ -3,86 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BDI Agent Dashboard</title>
+    <title>BDI Autonomous Kingdom</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 2rem; }
-        .container { max-width: 900px; margin: auto; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 2rem; }
+        .container { max-width: 1200px; margin: auto; }
         .header { text-align: center; margin-bottom: 2rem; }
-        .header h1 { font-size: 2.5rem; color: #bb86fc; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        h1 { font-size: 2.5rem; color: #bb86fc; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
         .card { background-color: #1e1e1e; border-radius: 8px; padding: 1.5rem; border: 1px solid #333; }
-        .card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #03dac6; }
+        .card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #03dac6; display: flex; align-items: center; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; }
         .metric { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
-        .metric-label { color: #888; }
-        .metric-value { font-weight: bold; }
-        #status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
-        .status-healthy { background-color: #03dac6; }
-        .status-degraded { background-color: #fbbd05; }
-        .status-unhealthy { background-color: #cf6679; }
+        .metric-label { color: #888; } .metric-value { font-weight: bold; }
+        .status-active, .status-success { background-color: #03dac6; } /* Hijau */
+        .status-idle, .status-offline { background-color: #888; } /* Abu-abu */
+        .status-triggered, .status-running { background-color: #fbbd05; } /* Kuning */
+        .status-error, .status-failure { background-color: #cf6679; } /* Merah */
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>BDI Agent Dashboard</h1>
-            <p>Real-time Monitoring of Brutal Architecture</p>
-        </div>
+        <div class="header"><h1>ðŸ‘‘ BDI Autonomous Kingdom Dashboard</h1></div>
         <div class="grid">
-            <div class="card">
-                <h2 class="card-title"><span id="status-indicator"></span>System Health</h2>
-                <div class="metric">
-                    <span class="metric-label">Overall Status</span>
-                    <span class="metric-value" id="overall-status">Loading...</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Termux Agent</span>
-                    <span class="metric-value" id="termux-status">Unknown</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">GitHub Actions</span>
-                    <span class="metric-value" id="github-status">Unknown</span>
-                </div>
+            <!-- Prajurit Darat -->
+            <div class="card" id="termux_agent">
+                <h2 class="card-title"><span class="status-dot"></span>Termux Agent</h2>
+                <div class="metric"><span class="metric-label">Status</span><span class="metric-value status-text">offline</span></div>
+                <div class="metric"><span class="metric-label">Cycles</span><span class="metric-value cycles">0</span></div>
+                <div class="metric"><span class="metric-label">Last Seen</span><span class="metric-value last_seen">N/A</span></div>
             </div>
-            <div class="card">
-                <h2 class="card-title">Agent Metrics</h2>
-                <div class="metric">
-                    <span class="metric-label">Total Cycles</span>
-                    <span class="metric-value" id="total-cycles">0</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Quantum Jobs</span>
-                    <span class="metric-value" id="quantum-jobs">0</span>
-                </div>
+            <!-- Jenderal-Jenderal -->
+            <div class="card" id="code_guardian">
+                <h2 class="card-title"><span class="status-dot"></span>Code Guardian</h2>
+                <div class="metric"><span class="metric-label">Status</span><span class="metric-value status-text">idle</span></div>
+                <div class="metric"><span class="metric-label">Last Result</span><span class="metric-value result">unknown</span></div>
+                <div class="metric"><span class="metric-label">Last Run</span><span class="metric-value last_run">N/A</span></div>
+            </div>
+            <div class="card" id="quantum_pipeline">
+                <h2 class="card-title"><span class="status-dot"></span>Quantum Pipeline</h2>
+                <div class="metric"><span class="metric-label">Status</span><span class="metric-value status-text">idle</span></div>
+                <div class="metric"><span class="metric-label">Last Result</span><span class="metric-value result">unknown</span></div>
+                <div class="metric"><span class="metric-label">Last Run</span><span class="metric-value last_run">N/A</span></div>
+            </div>
+            <div class="card" id="business_insight">
+                <h2 class="card-title"><span class="status-dot"></span>Business Insight</h2>
+                <div class="metric"><span class="metric-label">Status</span><span class="metric-value status-text">idle</span></div>
+                <div class="metric"><span class="metric-label">Last Result</span><span class="metric-value result">unknown</span></div>
+                <div class="metric"><span class="metric-label">Last Run</span><span class="metric-value last_run">N/A</span></div>
+            </div>
+            <div class="card" id="evolution_chamber">
+                <h2 class="card-title"><span class="status-dot"></span>Evolution Chamber</h2>
+                <div class="metric"><span class="metric-label">Status</span><span class="metric-value status-text">idle</span></div>
+                <div class="metric"><span class="metric-label">Last Result</span><span class="metric-value result">unknown</span></div>
+                <div class="metric"><span class="metric-label">Last Run</span><span class="metric-value last_run">N/A</span></div>
+            </div>
+            <div class="card" id="self_healing">
+                <h2 class="card-title"><span class="status-dot"></span>Self-Healing Patrol</h2>
+                <div class="metric"><span class="metric-label">Status</span><span class="metric-value status-text">idle</span></div>
+                <div class="metric"><span class="metric-label">Last Result</span><span class="metric-value result">unknown</span></div>
+                <div class="metric"><span class="metric-label">Last Run</span><span class="metric-value last_run">N/A</span></div>
             </div>
         </div>
     </div>
 
     <script>
-        async function fetchStatus() {
+        function timeAgo(isoString) {
+            if (!isoString) return 'N/A';
+            const date = new Date(isoString);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            return Math.floor(seconds) + " seconds ago";
+        }
+
+        async function fetchAndUpdate() {
             try {
                 const response = await fetch('/api/status');
                 const data = await response.json();
-
-                if (data.success) {
-                    const statusData = data.data;
-                    document.getElementById('overall-status').textContent = statusData.health_status;
-                    const indicator = document.getElementById('status-indicator');
-                    indicator.className = 'status-' + statusData.health_status;
-                    
-                    document.getElementById('termux-status').textContent = statusData.components.termux_agent.status;
-                    document.getElementById('github-status').textContent = statusData.components.github_actions.status;
-                    document.getElementById('total-cycles').textContent = statusData.metrics.total_cycles;
-                    document.getElementById('quantum-jobs').textContent = statusData.metrics.quantum_jobs;
+                
+                for (const componentId in data.components) {
+                    const componentData = data.components[componentId];
+                    const card = document.getElementById(componentId);
+                    if (card) {
+                        card.querySelector('.status-dot').className = `status-dot status-${componentData.status}`;
+                        card.querySelector('.status-text').textContent = componentData.status;
+                        if (card.querySelector('.last_seen')) card.querySelector('.last_seen').textContent = timeAgo(componentData.last_seen);
+                        if (card.querySelector('.last_run')) card.querySelector('.last_run').textContent = timeAgo(componentData.last_run);
+                        if (card.querySelector('.cycles')) card.querySelector('.cycles').textContent = componentData.cycles;
+                        if (card.querySelector('.result')) card.querySelector('.result').textContent = componentData.result;
+                    }
                 }
-            } catch (error) {
-                console.error("Failed to fetch status:", error);
-                document.getElementById('overall-status').textContent = 'Error';
-            }
+            } catch (error) { console.error("Gagal update dashboard:", error); }
         }
-
-        // Fetch status on page load and then every 15 seconds
-        fetchStatus();
-        setInterval(fetchStatus, 15000);
+        fetchAndUpdate();
+        setInterval(fetchAndUpdate, 5000); // Update setiap 5 detik
     </script>
 </body>
 </html>
