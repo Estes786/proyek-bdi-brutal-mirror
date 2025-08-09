@@ -15,7 +15,7 @@ PATTERNS = {
 }
 
 # File atau folder yang tidak perlu diperiksa
-EXCLUSIONS = ['.git', 'node_modules', '.vercel', 'artifacts', 'check_secrets.py', 'termux_bdi.db']
+EXCLUSIONS = ['.git', 'node_modules', '.vercel', 'artifacts', 'check_secrets.py', 'termux_bdi.db', '__pycache__']
 
 def log(message):
     print(f"[CodeGuardianAgent] {message}")
