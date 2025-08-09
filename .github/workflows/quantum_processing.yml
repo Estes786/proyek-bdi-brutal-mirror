@@ -75,3 +75,20 @@ jobs:
       
       - name: Run BusinessInsightAgent Analysis
         run: python github_actions_quantum/quantum/business_analyzer.py
+
+        evolution-chamber:
+    name: ðŸ¦„ Evolution Chamber
+    needs: business-analysis # Berjalan setelah analisis bisnis selesai
+    runs-on: ubuntu-latest
+    steps:
+      - name: âš¡ Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: âš™ï¸  Setup Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: ðŸ§  Jalankan Eksperimen oleh EvolutionAgent
+        run: |
+          python github_actions_quantum/quantum/evolution_chamber.py
