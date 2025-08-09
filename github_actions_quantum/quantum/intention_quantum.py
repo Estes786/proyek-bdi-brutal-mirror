@@ -129,7 +129,7 @@ class QuantumIntentionPlanner:
         summary_file = self.output_dir / f"intention_summary_{timestamp}.json"
         plan = plan_results.get('plan', {})
         summary = {
-            'timestamp': plan_results['timestamp'],
+            'timestamp': plan_results.get('timestamp', datetime.now().isoformat()),
             'planning_type': plan_results['planning_type'],
             'selected_actions': [a['id'] for a in plan.get('actions', [])]
         }
