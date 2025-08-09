@@ -1,108 +1,66 @@
-name: 🌌 Quantum BDI Agent Processing
+name: ðŸŒŒ Quantum BDI Processing & Security Guard
 
 on:
+  push:
+    branches: [ main ] # Berjalan setiap kali ada push ke branch main
   repository_dispatch:
-    types: [quantum-processing]
-  schedule:
-    - cron: '*/5 * * * *'
+    types: [quantum-processing-trigger]
   workflow_dispatch:
-    inputs:
-      processing_type:
-        description: 'Processing Type'
-        required: true
-        default: 'full_cycle'
-        type: choice
-        options:
-          - full_cycle
-          - belief_only
-      data_source:
-        description: 'Data Source'
-        required: false
-        default: 'termux_trigger'
 
 jobs:
-  quantum-belief-processing:
-    name: 🧠 Quantum Belief Processing
+  security-scan:
+    name: ðŸ›¡ï¸  Code Guardian Security Scan
     runs-on: ubuntu-latest
-    outputs:
-      belief_results_path: ${{ steps.process_beliefs.outputs.summary_file }}
     steps:
-      - name: 🚀 Checkout Repository
-        uses: actions/checkout@v4
-      - name: 🐍 Setup Python Quantum Environment
+      - name: âš¡ Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: ðŸ§  Jalankan Pemindaian oleh CodeGuardianAgent
+        run: |
+          python github_actions_quantum/check_secrets.py
+
+  run-quantum-pipeline:
+    name: Execute Quantum BDI Pipeline
+    needs: security-scan # PENTING! Job ini hanya berjalan JIKA security-scan SUKSES
+    runs-on: ubuntu-latest
+    steps:
+      - name: âš¡ Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: âš™ï¸  Setup Python Environment
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
           cache: 'pip'
-      - name: ⚡ Install Quantum Dependencies
+
+      - name: ðŸ“¦ Install Dependencies
         run: |
-          pip install qiskit numpy scipy scikit-learn pandas requests
-      - name: 🌌 Process Quantum Beliefs
-        id: process_beliefs
+          pip install --upgrade pip
+          # Menggunakan file requirements.txt
+          pip install -r requirements.txt
+
+      - name: ðŸ§ª 1. Run Quantum Belief Processing
+        id: belief_processing
         run: |
           python github_actions_quantum/quantum/belief_quantum.py
-          echo "summary_file=artifacts/belief_data/$(ls -t artifacts/belief_data | grep summary | head -n 1)" >> $GITHUB_OUTPUT
-      - name: 📤 Upload Belief Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: belief-results
-          path: artifacts/belief_data/
+          BELIEF_FILE=$(ls -t artifacts/belief_data | grep 'belief_summary' | head -n 1)
+          echo "belief_output_path=artifacts/belief_data/$BELIEF_FILE" >> $GITHUB_OUTPUT
 
-  quantum-desire-optimization:
-    name: 💫 Quantum Desire Optimization
-    runs-on: ubuntu-latest
-    needs: quantum-belief-processing
-    outputs:
-      desire_results_path: ${{ steps.optimize_desires.outputs.summary_file }}
-    steps:
-      - name: 🚀 Checkout Repository
-        uses: actions/checkout@v4
-      - name: 🐍 Setup Python Environment
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - name: ⚡ Install Dependencies
-        run: pip install qiskit numpy scipy scikit-learn pandas networkx
-      - name: 📥 Download Belief Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: belief-results
-          path: artifacts/belief_data/
-      - name: 🌌 Run QAOA Desire Optimization
-        id: optimize_desires
+      - name: ðŸ’¡ 2. Run Quantum Desire Optimization
+        id: desire_optimization
         run: |
-          python github_actions_quantum/quantum/desire_quantum.py --belief-file ${{ needs.quantum-belief-processing.outputs.belief_results_path }}
-          echo "summary_file=artifacts/desire_data/$(ls -t artifacts/desire_data | grep summary | head -n 1)" >> $GITHUB_OUTPUT
-      - name: 📤 Upload Desire Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: desire-results
-          path: artifacts/desire_data/
+          python github_actions_quantum/quantum/desire_quantum.py --belief-file ${{ steps.belief_processing.outputs.belief_output_path }}
+          DESIRE_FILE=$(ls -t artifacts/desire_data | grep 'desire_summary' | head -n 1)
+          echo "desire_output_path=artifacts/desire_data/$DESIRE_FILE" >> $GITHUB_OUTPUT
 
-  quantum-intention-planning:
-    name: 🎯 Quantum Intention Planning
-    runs-on: ubuntu-latest
-    needs: quantum-desire-optimization
-    steps:
-      - name: 🚀 Checkout Repository
-        uses: actions/checkout@v4
-      - name: 🐍 Setup Python Environment
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - name: ⚡ Install Dependencies
-        run: pip install qiskit numpy scipy scikit-learn pandas networkx
-      - name: 📥 Download Desire Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: desire-results
-          path: artifacts/desire_data/
-      - name: 🌌 Execute Quantum Intention Planning
-        id: plan_intentions
+      - name: ðŸš€ 3. Run Quantum Intention Planning
+        id: intention_planning
         run: |
-          python github_actions_quantum/quantum/intention_quantum.py --desire-file ${{ needs.quantum-desire-optimization.outputs.desire_results_path }}
-      - name: 📤 Upload Intention Artifacts
-        uses: actions/upload-artifact@v3
+          python github_actions_quantum/quantum/intention_quantum.py --desire-file ${{ steps.desire_optimization.outputs.desire_output_path }}
+
+      - name: ðŸ“ Upload All Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: intention-results
-          path: artifacts/intention_data/
+          name: quantum-bdi-results
+          path: artifacts/
+          retention-days: 5
