@@ -20,7 +20,7 @@ jobs:
         run: |
           curl -X POST "${{ secrets.VERCEL_URL }}/api/status" \
           -H "Content-Type: application/json" \
-          -d '{"component": "code_guardian", "status": "${{ job.status }}", "data": {"last_run": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"} }'
+          -d '{"component": "code_guardian", "status": "${{ job.status }}"}'
 
   run-quantum-pipeline:
     name: Execute Quantum BDI Pipeline
@@ -30,7 +30,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with: { python-version: '3.11', cache: 'pip', cache-dependency-path: 'requirements.txt' }
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
       - run: pip install -r requirements.txt
       - id: belief
         run: python github_actions_quantum/quantum/belief_quantum.py
@@ -38,13 +41,15 @@ jobs:
         run: python github_actions_quantum/quantum/desire_quantum.py --belief-file ${{ steps.belief.outputs.summary_file }}
       - run: python github_actions_quantum/quantum/intention_quantum.py --desire-file ${{ steps.desire.outputs.summary_file }}
       - uses: actions/upload-artifact@v4
-        with: { name: quantum-bdi-results, path: artifacts/ }
+        with:
+          name: quantum-bdi-results
+          path: artifacts/
       - name: Report Status to Vercel
         if: always()
         run: |
           curl -X POST "${{ secrets.VERCEL_URL }}/api/status" \
           -H "Content-Type: application/json" \
-          -d '{"component": "quantum_pipeline", "status": "${{ job.status }}", "data": {"last_run": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"} }'
+          -d '{"component": "quantum_pipeline", "status": "${{ job.status }}"}'
 
   business-analysis:
     name: Business Insight Analysis
@@ -54,14 +59,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with: { python-version: '3.11' }
+        with:
+          python-version: '3.11'
       - run: python github_actions_quantum/quantum/business_analyzer.py
       - name: Report Status to Vercel
         if: always()
         run: |
           curl -X POST "${{ secrets.VERCEL_URL }}/api/status" \
           -H "Content-Type: application/json" \
-          -d '{"component": "business_insight", "status": "${{ job.status }}", "data": {"last_run": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"} }'
+          -d '{"component": "business_insight", "status": "${{ job.status }}"}'
 
   evolution-chamber:
     name: Evolution Chamber
@@ -71,14 +77,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with: { python-version: '3.11' }
+        with:
+          python-version: '3.11'
       - run: python github_actions_quantum/quantum/evolution_chamber.py
       - name: Report Status to Vercel
         if: always()
         run: |
           curl -X POST "${{ secrets.VERCEL_URL }}/api/status" \
           -H "Content-Type: application/json" \
-          -d '{"component": "evolution_chamber", "status": "${{ job.status }}", "data": {"last_run": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"} }'
+          -d '{"component": "evolution_chamber", "status": "${{ job.status }}"}'
 
   self-healing-patrol:
     name: Self-Healing Patrol
@@ -87,14 +94,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with: { python-version: '3.11' }
+        with:
+          python-version: '3.11'
       - run: pip install requests
       - name: Run SelfHealingAgent Patrol
-        env: { VERCEL_URL: ${{ secrets.VERCEL_URL }} }
+        env:
+          VERCEL_URL: ${{ secrets.VERCEL_URL }}
         run: python github_actions_quantum/quantum/healing_protocol.py
       - name: Report Status to Vercel
         if: always()
         run: |
           curl -X POST "${{ secrets.VERCEL_URL }}/api/status" \
           -H "Content-Type: application/json" \
-          -d '{"component": "self_healing", "status": "${{ job.status }}", "data": {"last_run": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"} }'
+          -d '{"component": "self_healing", "status": "${{ job.status }}"}'
