@@ -4,36 +4,32 @@ import os
 from datetime import datetime
 
 class PlatformCoordinator:
-    """Mengelola komunikasi antara Termux, Vercel, dan GitHub."""
     def __init__(self, config):
         self.config = config.get('integration', {})
         self.vercel_url = self.config.get('vercel_url')
-        self.github_repo = self.config.get('github_repository')
-        self.github_token = os.getenv('GITHUB_TOKEN') # Nanti kita bisa set ini
-        print("Koordinator Lintas Platform Siap!")
+        # ... (sisa __init__ tetap sama)
 
     def update_vercel_status(self, component, status, metrics={}):
         if not self.vercel_url:
-            print("URL Vercel tidak diatur. Melewatkan update status.")
+            print("URL Vercel tidak diatur.")
             return False
         
         try:
             url = f"{self.vercel_url}/api/status"
-            payload = {
-                "component": component,
-                "status": status,
-                "metrics": metrics,
-                "timestamp": datetime.now().isoformat()
-            }
-            response = requests.post(url, json=payload, timeout=15)
+            payload = { "component": component, "status": status, "metrics": metrics }
+            # Tambahkan timeout yang lebih masuk akal
+            response = requests.post(url, json=payload, timeout=10)
+            
             if response.status_code == 200:
-                print(f"Update status '{component}' ke Vercel BERHASIL.")
+                print(f"Status '{component}' berhasil dikirim ke Vercel.")
                 return True
             else:
-                print(f"Update status ke Vercel GAGAL: {response.status_code}")
+                # Jangan panik, cukup catat sebagai warning
+                print(f"WARNING: Gagal update status ke Vercel (Status: {response.status_code})")
                 return False
         except requests.exceptions.RequestException as e:
-            print(f"Error koneksi ke Vercel: {e}")
+            # Jangan panik, ini mungkin hanya masalah jaringan sementara
+            print(f"WARNING: Tidak bisa terhubung ke Vercel API: {e}")
             return False
 
     def trigger_github_workflow(self):
