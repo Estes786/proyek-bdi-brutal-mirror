@@ -130,7 +130,7 @@ class QuantumIntentionPlanner:
         plan = plan_results.get('plan', {})
         summary = {
             'timestamp': plan_results.get('timestamp', datetime.now().isoformat()),
-            'planning_type': plan_results['planning_type'],
+            'planning_type': plan_results.get('planning_type', 'unknown'),
             'selected_actions': [a['id'] for a in plan.get('actions', [])]
         }
         with open(summary_file, 'w') as f:
