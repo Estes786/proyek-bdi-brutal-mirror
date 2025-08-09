@@ -90,5 +90,3 @@ if __name__ == "__main__":
     valuable_insights = analyze_data(business_data)
     generate_report(valuable_insights)
     log("Misi selesai.")
-
-```4.  Simpan dan keluar.
