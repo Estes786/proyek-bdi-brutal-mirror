@@ -4,6 +4,9 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+  schedule:
+    # Menjalankan patroli kesehatan setiap 15 menit
+    - cron: '*/15 * * * *'
 
 jobs:
   security-scan:
@@ -91,3 +94,26 @@ jobs:
       
       - name: Run EvolutionAgent Experiment
         run: python github_actions_quantum/quantum/evolution_chamber.py
+
+        self-healing-patrol:
+    name: ðŸ›¡ï¸  Self-Healing Patrol
+    # Berjalan jika ada jadwal (schedule) atau jika dipicu manual
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: âš¡ Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: âš™ï¸  Setup Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: ðŸ“¦ Install Dependencies
+        run: pip install requests
+      
+      - name: ðŸ§‘â€âš•ï¸  Jalankan Patroli & Penyembuhan oleh SelfHealingAgent
+        env:
+          VERCEL_URL: ${{ secrets.VERCEL_URL }} # Kita perlu menambahkan secret ini nanti
+        run: |
+          python github_actions_quantum/quantum/healing_protocol.py
