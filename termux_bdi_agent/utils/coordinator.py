@@ -7,7 +7,9 @@ class PlatformCoordinator:
     def __init__(self, config):
         self.config = config.get('integration', {})
         self.vercel_url = self.config.get('vercel_url')
-        # ... (sisa __init__ tetap sama)
+        self.github_repo = self.config.get('github_repository') # BARIS BARU!
+        self.github_token = os.getenv('GITHUB_TOKEN')
+        print("Koordinator Lintas Platform Siap!")
 
     def update_vercel_status(self, component, status, metrics={}):
         if not self.vercel_url:
