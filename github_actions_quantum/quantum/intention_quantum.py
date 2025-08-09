@@ -7,13 +7,14 @@ import json
 import argparse
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 import numpy as np
 from typing import Dict, List, Any
 import logging
 from pathlib import Path
 
 try:
+    # Menggunakan sihir Qiskit modern
     from qiskit_optimization.applications import Knapsack
     from qiskit_optimization.converters import QuadraticProgramToQubo
     from qiskit.algorithms.minimum_eigensolvers import VQE
@@ -23,11 +24,11 @@ try:
     QUANTUM_AVAILABLE = True
 except ImportError:
     QUANTUM_AVAILABLE = False
-    print("âš ï¸   Qiskit Optimization or Aer not found. Switching to classical planning.")
+    print("âš ï¸   Qiskit Optimization atau Aer tidak ditemukan. Beralih ke mode klasik.")
 
 class QuantumIntentionPlanner:
     """
-    ðŸŒŒ Quantum-Enhanced Intention Planning System V2
+    ðŸŒŒ Sistem Perencanaan Niat Kuantum V2
     """
     def __init__(self, config: Dict[str, Any]):
         self.config = config
@@ -46,10 +47,11 @@ class QuantumIntentionPlanner:
 
     def _setup_quantum_planner(self):
         self.optimizer = COBYLA(maxiter=150)
-        self.sampler = Sampler()
-        self.logger.info(f"âœ¨ Quantum planner (VQE with Sampler) setup complete.")
+        self.sampler = Sampler() # Menggunakan Sampler modern
+        self.logger.info(f"âœ¨ Perencana Kuantum (VQE dengan Sampler) siap.")
 
     def _initialize_action_templates(self) -> Dict[str, List[Dict[str, Any]]]:
+        # Template aksi yang disederhanakan untuk contoh
         return {
             'enhance_performance': [{'id': 'optimize_db', 'weight': 4, 'value': 8}],
             'increase_stability': [{'id': 'add_monitoring', 'weight': 3, 'value': 7}],
@@ -61,7 +63,7 @@ class QuantumIntentionPlanner:
         try:
             with open(desire_file, 'r') as f: return json.load(f)
         except Exception as e:
-            self.logger.error(f"â Œ Error loading desire data: {e}")
+            self.logger.error(f"â Œ Gagal memuat data keinginan: {e}")
             return {}
 
     def generate_action_plan(self, desire_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -71,8 +73,9 @@ class QuantumIntentionPlanner:
 
         candidate_actions = []
         for desire in selected_desires:
-            if desire['id'] in self.action_templates:
-                candidate_actions.extend(self.action_templates[desire['id']])
+            action_id = desire.get('id')
+            if action_id in self.action_templates:
+                candidate_actions.extend(self.action_templates[action_id])
         
         if not candidate_actions:
              return {'plan': {'actions': []}}
@@ -84,15 +87,15 @@ class QuantumIntentionPlanner:
 
         return {
             'timestamp': datetime.now().isoformat(),
-            'planning_type': 'quantum' if self.use_quantum else 'classical',
+            'planning_type': 'quantum_vqe_v2' if self.use_quantum else 'classical',
             'plan': {'actions': optimized_plan}
         }
 
     def _quantum_optimize_plan(self, actions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        self.logger.info("ðŸŒŒ Starting quantum action planning (Knapsack VQE)...")
+        self.logger.info("ðŸŒŒ Memulai perencanaan aksi kuantum (Knapsack VQE)...")
         values = [a['value'] for a in actions]
         weights = [a['weight'] for a in actions]
-        max_weight = 7 # Example capacity
+        max_weight = 7 # Kapasitas contoh
 
         knapsack_problem = Knapsack(values=values, weights=weights, max_weight=max_weight)
         qp = knapsack_problem.to_quadratic_program()
@@ -103,13 +106,13 @@ class QuantumIntentionPlanner:
         vqe = VQE(sampler=self.sampler, ansatz=ansatz, optimizer=self.optimizer)
         result = vqe.compute_minimum_eigenvalue(operator)
         
-        selection = Knapsack.sample_most_likely(result.eigenstate)
+        # Mengambil hasil yang paling mungkin
+        selection = knapsack_problem.interpret(result)
         
         return [actions[i] for i, bit in enumerate(selection) if bit == 1]
 
     def _classical_optimize_plan(self, actions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        self.logger.info("ðŸ”„ Using classical action planning (Greedy)...")
-        # Simple greedy algorithm for knapsack
+        self.logger.info("ðŸ”„ Menggunakan perencanaan aksi klasik (Greedy)...")
         max_weight = 7
         sorted_actions = sorted(actions, key=lambda x: x['value'] / x['weight'], reverse=True)
         
@@ -132,26 +135,26 @@ class QuantumIntentionPlanner:
         }
         with open(summary_file, 'w') as f:
             json.dump(summary, f, indent=2)
-        self.logger.info(f"âœ… Results saved: {summary_file}")
+        self.logger.info(f"âœ… Hasil disimpan: {summary_file}")
         return str(summary_file)
 
 def main():
     parser = argparse.ArgumentParser(description='ðŸŒŒ Quantum Intention Planning V2')
-    parser.add_argument('--desire-file', type=str, required=True, help='Path to optimized desire data file')
+    parser.add_argument('--desire-file', type=str, required=True, help='Path ke file data keinginan')
     args = parser.parse_args()
 
     config = {'use_quantum': QUANTUM_AVAILABLE}
     
     print("ðŸŒŒ QUANTUM INTENTION PLANNING - V2")
     planner = QuantumIntentionPlanner(config)
-    print("\nðŸ“¥ Loading desire data...")
+    print("\nðŸ“¥ Memuat data keinginan...")
     desire_data = planner.load_desire_data(args.desire_file)
     if not desire_data: sys.exit(1)
 
-    print("\nðŸŽ¯ Generating action plan...")
+    print("\nðŸŽ¯ Menghasilkan rencana aksi...")
     plan_results = planner.generate_action_plan(desire_data)
 
-    print("\nðŸ’¾ Saving results...")
+    print("\nðŸ’¾ Menyimpan hasil...")
     summary_file = planner.save_intention_plan(plan_results)
     
     if os.getenv('GITHUB_ACTIONS'):
