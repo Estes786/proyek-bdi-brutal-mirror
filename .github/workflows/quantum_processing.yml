@@ -60,19 +60,18 @@ jobs:
           path: artifacts/
           retention-days: 5
 
-      business-analysis:
-    name: ðŸ“ˆ Business Insight Analysis
-    needs: run-quantum-pipeline # Berjalan setelah pipeline kuantum selesai
+  business-analysis:
+    name: Business Insight Analysis
+    needs: run-quantum-pipeline
     runs-on: ubuntu-latest
     steps:
-      - name: âš¡ Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
       
-      - name: âš™ï¸  Setup Python Environment
+      - name: Setup Python Environment
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
       
-      - name: ðŸ§  Jalankan Analisis oleh BusinessInsightAgent
-        run: |
-          python github_actions_quantum/quantum/business_analyzer.py    
+      - name: Run BusinessInsightAgent Analysis
+        run: python github_actions_quantum/quantum/business_analyzer.py
