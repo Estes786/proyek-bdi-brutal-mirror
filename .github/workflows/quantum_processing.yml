@@ -1,6 +1,6 @@
 name: Quantum BDI Processing & Security Guard
 
-on:
+# on:
   push:
     branches: [ main ]
   workflow_dispatch:
@@ -51,7 +51,7 @@ jobs:
           -H "Content-Type: application/json" \
           -d '{"component": "quantum_pipeline", "status": "${{ job.status }}"}'
 
-  business-analysis:
+ # business-analysis:
     name: Business Insight Analysis
     needs: run-quantum-pipeline
     if: github.event_name == 'push'
